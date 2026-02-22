@@ -56,10 +56,8 @@ rm cv_folds_singles_substitutions.zip
 python scripts/extract_wt_fasta.py
 ```
 
-**Generate embeddings:**
+**Generate embeddings + pooled embeddings:**
 
 ```shell
-mkdir embeddings/wt_mean
-mkdir embeddings/wt_tok
-python scripts/embed_wt_fasta.py
+python scripts/esm2_forward_features.py
 ```
