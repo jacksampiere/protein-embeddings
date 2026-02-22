@@ -20,9 +20,9 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-FASTA = Path("data/wt_fasta")
+FASTA = Path("data/proteingym/wt_fasta")
 
-OUT_TOK = Path("data/embeddings/wt_tok")
+OUT_TOK = Path("data/proteingym/embeddings/wt_tok")
 OUT_TOK.mkdir(parents=True, exist_ok=True)
 
 OUT_POOL = Path("data/proteingym/embeddings/wt_pool")

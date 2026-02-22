@@ -2,7 +2,7 @@ from pathlib import Path
 import pandas as pd
 
 ref_path = Path("data/proteingym/reference_files/DMS_Substitutions.csv")
-out_fasta = Path("data/wt_fasta")
+out_fasta = Path("data/proteingym/wt_fasta")
 out_fasta.parent.mkdir(parents=True, exist_ok=True)
 
 ref = pd.read_csv(ref_path)
