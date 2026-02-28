@@ -1,6 +1,9 @@
+# In-context learning via tabular foundation models with ProteinGym
+TODO
+
 ## Running the code
 
-**Environment setup:**
+### Environment setup
 
 Install uv:
 ```shell
@@ -22,7 +25,7 @@ python -m pip install --upgrade pip  # upgrade if an old version is installed by
 python -m pip list
 ```
 
-**Dataset download:**
+### Dataset download
 
 Create the dataset directory:
 
@@ -51,13 +54,19 @@ unzip -q cv_folds_singles_substitutions.zip
 rm cv_folds_singles_substitutions.zip
 ```
 
-**Convert WT sequences to FASTA:**
+### Core functionality
+
+Convert WT sequences to FASTA:
 ```shell
 python scripts/extract_wt_fasta.py
 ```
 
-**Generate embeddings + pooled embeddings:**
-
+Generate per-residue embeddings + BOS/EOS tokens:
 ```shell
 python scripts/esm2_forward_features.py
+```
+
+Generate features:
+```shell
+python featurize.py
 ```

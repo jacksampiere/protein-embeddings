@@ -1,0 +1,30 @@
+name: baseline
+
+# Paths
+ref_csv: data/proteingym/reference_files/DMS_Substitutions.csv
+assay_dir: data/proteingym/DMS_ProteinGym_substitutions
+wt_tok_dir: data/proteingym/embeddings/wt_tok
+wt_special_dir: data/proteingym/embeddings/wt_special
+out_base_dir: data/proteingym/variant_tables
+
+# Data
+include_multi_mutants: true
+strict: false
+
+# Global WT embedding features
+use_bos: true
+use_eos: true
+use_global_mean: true
+use_global_max: true
+use_global_seg: true
+n_seg_bins: 8
+
+# Local WT embedding features at mutation site(s)
+use_local_site: true
+use_local_window: true
+window_k: 10
+
+# Mutation descriptors
+use_mutation_descriptors: true
+use_blosum: true
+use_physchem: true

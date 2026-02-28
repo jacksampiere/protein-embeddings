@@ -2,3 +2,5 @@
 **/uv.lock
 **/__pycache__
 data/*
+**/.ruff_cache
+**/.DS_Store
