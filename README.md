@@ -41,17 +41,20 @@ Download the substitutions and predefined folds:
 VERSION="v1.3"
 BASE="https://marks.hms.harvard.edu/proteingym/ProteinGym_${VERSION}"
 
- cd data/proteingym
-
 # Main DMS substitutions benchmark (variants + labels)
 curl -L -o DMS_ProteinGym_substitutions.zip "${BASE}/DMS_ProteinGym_substitutions.zip"
-unzip -q DMS_ProteinGym_substitutions.zip
+unzip -q DMS_ProteinGym_substitutions.zip -d data/proteingym
 rm DMS_ProteinGym_substitutions.zip
 
 # Official CV folds for singles
 curl -L -o cv_folds_singles_substitutions.zip "${BASE}/cv_folds_singles_substitutions.zip"
-unzip -q cv_folds_singles_substitutions.zip
+unzip -q data/proteingym/cv_folds_singles_substitutions.zip -d data/proteingym
 rm cv_folds_singles_substitutions.zip
+
+# Official CV folds for multiple
+curl -L -o cv_folds_multiples_substitutions.zip "${BASE}/cv_folds_multiples_substitutions.zip"
+unzip -q cv_folds_multiples_substitutions.zip -d data/proteingym
+rm cv_folds_multiples_substitutions.zip
 ```
 
 ### Core functionality
