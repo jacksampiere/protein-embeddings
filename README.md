@@ -1,6 +1,3 @@
-# In-context learning via tabular foundation models with ProteinGym
-TODO
-
 ## Running the code
 
 ### Environment setup
