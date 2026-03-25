@@ -5,7 +5,6 @@ Inputs:
 
 Outputs:
 - Per-residue embeddings: data/proteingym/embeddings/wt_tok/{file_id}.npy  shape (L_res, D)
-- BOS/EOS tokens:         data/proteingym/embeddings/wt_special/{file_id}.npz  keys: bos, eos  each (D,)
 """
 
 import time
@@ -19,9 +18,6 @@ FASTA = Path("data/proteingym/wt_fasta")
 
 OUT_TOK = Path("data/proteingym/embeddings/wt_tok")
 OUT_TOK.mkdir(parents=True, exist_ok=True)
-
-OUT_SPECIAL = Path("data/proteingym/embeddings/wt_special")
-OUT_SPECIAL.mkdir(parents=True, exist_ok=True)
 
 ESM2_LAYER = 33  # model has 33 transformer layers
 MAX_TOKENS = 6000  # conservative; increase if stable
@@ -104,9 +100,6 @@ with torch.no_grad():
         residue_mask[:, 0] = False  # mask BOS
         residue_mask[rows, eos_cols] = False  # mask EOS
 
-        bos = h[:, 0, :]  # (B, D)
-        eos = h[rows, eos_cols, :]  # (B, D)
-
         for b, (pid, seq) in enumerate(batch):
             residue_idx = torch.where(residue_mask[b])[0]
             residue_repr = h[b, residue_idx, :]  # (L_res, D)
@@ -120,11 +113,6 @@ with torch.no_grad():
             np.save(
                 OUT_TOK / f"{pid}.npy",
                 residue_repr.cpu().numpy().astype(DTYPE, copy=False),
-            )
-            np.savez(
-                OUT_SPECIAL / f"{pid}.npz",
-                bos=bos[b].cpu().numpy().astype(DTYPE, copy=False),
-                eos=eos[b].cpu().numpy().astype(DTYPE, copy=False),
             )
             proteins_done += 1
 
@@ -142,5 +130,4 @@ with torch.no_grad():
     total_sec = time.perf_counter() - run_start
 
 print(f"Saved per-residue embeddings → {OUT_TOK}")
-print(f"Saved BOS/EOS embeddings     → {OUT_SPECIAL}")
 print(f"Proteins processed: {proteins_done}  |  Total time: {total_sec / 60:.2f} min")
