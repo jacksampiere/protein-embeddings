@@ -71,6 +71,16 @@ Generate features:
 python scripts/featurize.py configs/featurize_baseline.yaml
 ```
 
+Run k-shot training and inference:
+```shell
+python scripts/train_kshot_benchmark.py
+```
+
+Generate plots:
+```shell
+python scripts/analysis.py
+```
+
 ## Feature descriptions:
 Metadata:
 - `file_id`: assay identifier (stem of DMS_filename, e.g. `A0A140D2T1_ZIKV_Sourisseau_2019`)

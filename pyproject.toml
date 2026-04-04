@@ -12,8 +12,12 @@ dependencies = [
   "pyarrow==21.0.0",
   "tqdm==4.67.3",
   "PyYAML==6.0.3",
+  "setuptools==82.0.1",
   "biopython==1.85",
-  "tabdpt==0.1.0"
+  "tabdpt==0.1.0",
+  "scikit-learn==1.7.2",
+  "lightgbm==4.6.0",
+  "matplotlib==3.10.8"
 ]
 
 [dependency-groups]
