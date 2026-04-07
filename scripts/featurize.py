@@ -1,11 +1,3 @@
-"""Featurize ProteinGym assays into per-variant tabular rows.
-
-Usage:
-    python scripts/featurize.py configs/featurize_baseline.yaml
-"""
-
-from __future__ import annotations
-
 import re
 import sys
 from collections import defaultdict
@@ -17,8 +9,7 @@ import pandas as pd
 import yaml
 from tqdm import tqdm
 
-# ── Constants ─────────────────────────────────────────────────────────────────
-
+# Constants
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
 AA_ARRAY = np.array(list(AA_ORDER), dtype="<U1")
 AA_INDEX = {aa: i for i, aa in enumerate(AA_ORDER)}
@@ -99,8 +90,6 @@ CHARGE = {
     "V": 0,
 }
 
-# ── Config ────────────────────────────────────────────────────────────────────
-
 
 @dataclass
 class FeaturizeConfig:
@@ -116,7 +105,7 @@ class FeaturizeConfig:
 
     Data
     ----
-    strict                : If True, raise on any filtered row instead of printing a warning.
+    strict : If True, raise on any filtered row instead of printing a warning.
 
     Local WT embedding features  (computed per variant at the mutated site)
     ----------------------------
@@ -147,7 +136,7 @@ def load_config(path: str) -> FeaturizeConfig:
         return FeaturizeConfig(**yaml.safe_load(f))
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ------ Helpers ------
 
 
 def d_cols(prefix: str, d: int) -> list[str]:
@@ -205,7 +194,7 @@ def parse_single_mutant(s: str) -> tuple[str, int, str] | None:
     return af, pos, at
 
 
-# ── Per-assay processing ──────────────────────────────────────────────────────
+# ------ Per-assay processing ------
 
 
 def process_one_assay(
@@ -224,7 +213,7 @@ def process_one_assay(
     l_res, D = tok.shape
     tok_f32 = np.asarray(tok, dtype=np.float32)
 
-    # ── Load assay CSV and keep only single substitutions ─────────────────────
+    # --- Load assay CSV and keep only single substitutions ---
 
     assay_df = pd.read_csv(
         Path(cfg.assay_dir) / f"{file_id}.csv",
@@ -251,7 +240,7 @@ def process_one_assay(
     assay_df = assay_df.reset_index(drop=True)
     parsed = parsed.reset_index(drop=True)
 
-    # ── Parse the single-mutant rows and validate site identity ───────────────
+    # --- Parse the single-mutant rows and validate site identity ---
 
     sites_df = pd.DataFrame(
         parsed.tolist(), columns=["aa_from", "pos", "aa_to"]
@@ -298,7 +287,7 @@ def process_one_assay(
     )
     n_mutants = len(assay_df)
 
-    # ── Per-site embedding lookups ────────────────────────────────────────────
+    # --- Per-site embedding lookups ---
 
     row_idx = sites_df["mutant_idx"].values  # (n_mutants,) → which mutant row
     idx0 = sites_df["pos"].values - 1  # 0-indexed residue positions
@@ -318,11 +307,11 @@ def process_one_assay(
             f"{file_id}: singles-only featurization expected one site per row"
         )
 
-    # ── Assemble output DataFrame ─────────────────────────────────────────────
+    # --- Assemble output DataFrame ---
 
     out_dfs: list[pd.DataFrame] = []
 
-    # Meta + labels
+    # Metadata + labels
     out_dfs.append(
         pd.DataFrame(
             {
@@ -401,9 +390,6 @@ def process_one_assay(
     stats["assays_written"] += 1
     stats["rows_written"] += n_mutants
     print(f"[OK] {file_id}: {n_mutants} rows → {out_path}")
-
-
-# ── Main ──────────────────────────────────────────────────────────────────────
 
 
 def main() -> None:

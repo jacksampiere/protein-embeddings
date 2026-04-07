@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 
 import numpy as np
@@ -38,7 +36,7 @@ ALPHA_GRID = np.logspace(-4, 4, num=9)
 #   1. tensors are mapped to CPU on load
 #   2. the device field inside the checkpoint config is rewritten to 'cpu'
 #      (tabdpt reads config['env']['device'] and calls model.to(...) with it,
-#      ignoring the device= argument passed to TabDPTRegressor/Classifier)
+#      ignoring the device= argument passed to TabDPTRegressor)
 _orig_torch_load = torch.load
 
 
@@ -57,7 +55,7 @@ torch.load = _patched_torch_load
 
 
 def load_reference_metadata(reference_csv: Path = REFERENCE_CSV) -> pd.DataFrame:
-    """Load ProteinGym assay metadata and key it by file_id."""
+    """Load ProteinGym assay metadata and key by file_id."""
     ref = pd.read_csv(reference_csv)
     ref["file_id"] = ref["DMS_filename"].map(lambda x: Path(x).stem)
     return ref.set_index("file_id", drop=False)
@@ -68,7 +66,7 @@ def load_assay_data(
     variant_table_dir: Path = VARIANT_TABLE_DIR,
     fold_dir: Path = FOLD_DIR,
 ) -> pd.DataFrame:
-    """Load one featurized assay and merge it with official random fold assignments."""
+    """Load one featurized assay and merge with official random fold assignments."""
     assay_path = variant_table_dir / f"{file_id}.parquet"
     fold_path = fold_dir / f"{file_id}.csv"
 
@@ -85,7 +83,7 @@ def load_assay_data(
 
 
 def get_feature_columns(df: pd.DataFrame) -> list[str]:
-    """Return model feature columns for a merged assay dataframe."""
+    """Return feature columns for a merged assay dataframe."""
     return [c for c in df.columns if c not in META_COLS]
 
 
@@ -94,7 +92,7 @@ def sample_k_from_training_folds(
     k: int,
     rng: np.random.Generator,
 ) -> pd.DataFrame:
-    """Sample k rows uniformly at random from the outer-training pool."""
+    """Sample k rows uniformly at random from the outer training pool."""
     if len(train_df) < k:
         raise ValueError(
             f"Not enough samples in training pool: need {k}, have {len(train_df)}"
@@ -113,7 +111,7 @@ def prepare_outer_fold_data(
 ) -> dict[str, object]:
     """Prepare outer train/test splits, few-shot sampling, arrays, and scaling.
 
-    k=-1 means use the full outer-training pool without subsampling.
+    k=-1 means use the full outer training pool without subsampling.
     """
     train_df = assay_df.loc[assay_df[OUTER_FOLD_COL] != outer_fold].copy()
     test_df = assay_df.loc[assay_df[OUTER_FOLD_COL] == outer_fold].copy()
@@ -147,7 +145,6 @@ def prepare_outer_fold_data(
 
 
 def safe_spearman(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Spearman with a finite fallback for tiny or degenerate splits."""
     stat = spearmanr(y_true, y_pred).statistic
     return 0.0 if np.isnan(stat) else float(stat)
 
@@ -214,7 +211,7 @@ def run_outer_fold_ridge(
         rng=rng,
     )
 
-    # RidgeCV uses efficient LOO (MSE) instead of nested Spearman CV — much faster
+    # RidgeCV uses efficient LOO (MSE) instead of nested Spearman CV
     model = RidgeCV(alphas=alpha_grid)
     model.fit(prepared["X_train_scaled"], prepared["y_train"])
     best_alpha = float(model.alpha_)
@@ -347,7 +344,7 @@ def run_assay_benchmark(
     k_sweep: list[int] = K_SWEEP,
     random_state: int = 0,
 ) -> pd.DataFrame:
-    """Run the full k × fold sweep for one assay. Returns a per-row metrics DataFrame."""
+    """Run the full k x fold sweep for one assay. Returns a per-row metrics DataFrame."""
     feasible_ks = get_feasible_k_values(assay_df, k_sweep)
     rows = []
 
@@ -367,7 +364,6 @@ def run_assay_benchmark(
                     and k < TABDPT_DEFAULT_MAX_FEATURES
                 ):
                     continue
-                print(f"    fold={outer_fold} model={model_name}", flush=True)
                 try:
                     if model_name == "ridge":
                         result = run_outer_fold_ridge(
@@ -495,6 +491,11 @@ def main() -> None:
     assay_limit = None  # ignored if assay_ids is set
     assay_ids = None  # e.g. ["ASSAY_1", "ASSAY_2"] to target specific assays
     random_state = 0
+
+    # To run tabdpt on targeted assays, uncomment below:
+    # tabdpt_assays_path = Path("data/proteingym/results/tabdpt_target_assays.txt")
+    # models = ["tabdpt"]
+    # assay_ids = tabdpt_assays_path.read_text().splitlines()
 
     ref = load_reference_metadata()
     run_benchmark(

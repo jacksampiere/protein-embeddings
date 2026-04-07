@@ -1,12 +1,3 @@
-"""Run one ESM-2 forward pass per WT sequence and cache reusable features.
-
-Inputs:
-- FASTA file at data/proteingym/wt_fasta
-
-Outputs:
-- Per-residue embeddings: data/proteingym/embeddings/wt_tok/{file_id}.npy  shape (L_res, D)
-"""
-
 import time
 from pathlib import Path
 
